@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Create Your Calendar Link | Actually Lovely</title>
+<style>
+:root{--ivory:#fbf7f1;--rose:#b98283;--brown:#66534d;--muted:#8b7770;--line:#eadbd5}*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:28px 16px;background:var(--ivory);color:var(--brown);font-family:Arial,sans-serif}
+main{width:min(100%,650px);margin:0 auto;padding:30px 25px;background:#ffffffc7;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 36px #5d453d10}
+.eyebrow{text-align:center;color:var(--rose);font-size:11px;letter-spacing:.2em;text-transform:uppercase}h1{text-align:center;font:normal clamp(29px,6vw,40px)/1.2 Georgia,serif;margin:8px 0;color:var(--brown)}
+.intro{text-align:center;color:var(--muted);font-size:13px;line-height:1.6;margin:0 auto 25px;max-width:470px}label{display:block;font-size:12px;font-weight:600;margin:14px 0 6px}
+input,textarea{width:100%;padding:12px;border:1px solid #d9c8c1;border-radius:8px;background:#fff;color:#554640;font:14px Arial}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{width:100%;margin-top:22px;padding:14px 18px;border:0;border-radius:999px;background:var(--rose);color:white;font-weight:600;font-size:14px;cursor:pointer}
+.result{display:none;margin-top:22px;padding:16px;border:1px solid var(--line);border-radius:10px;background:#fff}.result p{font-size:13px;line-height:1.55}.linkbox{overflow-wrap:anywhere;font-size:12px;color:#7a5c59;background:var(--ivory);padding:12px;border-radius:7px}
+.note{font-size:11px;color:var(--muted);line-height:1.6}@media(max-width:480px){.grid{grid-template-columns:1fr}main{padding:25px 18px}}</style></head><body><main>
+<p class="eyebrow">Actually Lovely · Personalization</p><h1>Create your Add to Calendar link</h1><p class="intro">Enter your celebration details below. Generate your personal link, then copy it into the Add to Calendar button in your Canva website.</p>
+<form id="event-form"><label for="title">Event title *</label><input id="title" required maxlength="100" value="A Little Baby Is Blooming Soon!">
+<div class="grid"><div><label for="date">Event date *</label><input id="date" type="date" required></div><div><label for="timezone">Time zone *</label><input id="timezone" required value="Europe/Athens" placeholder="e.g. Europe/London"></div></div>
+<div class="grid"><div><label for="start">Start time *</label><input id="start" type="time" required value="14:00"></div><div><label for="end">End time *</label><input id="end" type="time" required value="17:00"></div></div>
+<label for="location">Venue / location</label><input id="location" maxlength="180" placeholder="Venue name and address">
+<label for="description">Event message (optional)</label><textarea id="description" rows="3" maxlength="500" placeholder="A short message for your guests"></textarea><button type="submit">Generate My Calendar Link</button></form>
+<section class="result" id="result" aria-live="polite"><strong>Your personalized calendar link is ready!</strong><p>Copy this link and paste it into the Add to Calendar button in your Canva website.</p><div class="linkbox" id="generated-link"></div><button id="copy-link" type="button">Copy My Link</button><p class="note">Anyone with this link can view the event details. Share it with your guests only when your invitation is ready.</p></section>
+<p class="note">Check the date, times, and time zone carefully. The time zone should match the event location.</p></main>
+<script>
+const form=document.getElementById("event-form"),result=document.getElementById("result"),linkBox=document.getElementById("generated-link");let generatedUrl="";
+form.addEventListener("submit",e=>{e.preventDefault();const date=document.getElementById("date").value,start=document.getElementById("start").value,end=document.getElementById("end").value;if(end<=start){alert("Please choose an end time later than the start time.");return;}
+const params=new URLSearchParams({title:document.getElementById("title").value.trim(),date,start,end,timezone:document.getElementById("timezone").value.trim(),location:document.getElementById("location").value.trim(),description:document.getElementById("description").value.trim()});
+generatedUrl=new URL("./index.html?"+params.toString(),window.location.href).href;linkBox.textContent=generatedUrl;result.style.display="block";result.scrollIntoView({behavior:"smooth",block:"nearest"});});
+document.getElementById("copy-link").addEventListener("click",async function(){try{await navigator.clipboard.writeText(generatedUrl);this.textContent="Copied!";}catch(err){this.textContent="Select and copy the link above";}});
+</script></body></html>
