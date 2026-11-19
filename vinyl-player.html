@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actually Lovely Vinyl Player</title>
+<style>
+  :root { --rose:#b98286; --rose-dark:#96666b; --ivory:#f8f3ed; --ink:#4c4140; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; width:100%; min-height:100%; background:transparent; }
+  body { display:flex; align-items:center; justify-content:center; padding:8px; font-family:Georgia,'Times New Roman',serif; color:var(--ink); }
+  .player { display:flex; align-items:center; gap:13px; width:min(100%,360px); padding:9px 13px 9px 9px; border:1px solid rgba(185,130,134,.28); border-radius:999px; background:rgba(248,243,237,.96); box-shadow:0 4px 18px rgba(90,65,60,.09); }
+  .record-wrap { position:relative; width:66px; height:66px; flex:0 0 66px; }
+  .record { width:100%; height:100%; border-radius:50%; position:relative; background:repeating-radial-gradient(circle at center,#242326 0 2px,#343236 2.5px 3.5px,#1e1d20 4px 5px); box-shadow:0 2px 6px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,255,255,.14); animation:spin 4s linear infinite; animation-play-state:paused; }
+  .record.playing { animation-play-state:running; }
+  .label { position:absolute; width:25px; height:25px; border-radius:50%; left:50%; top:50%; transform:translate(-50%,-50%); background:radial-gradient(circle at 35% 30%,#e6c4bd,var(--rose) 65%,#87585d); border:1px solid rgba(255,255,255,.45); display:grid; place-items:center; }
+  .hole { width:4px;height:4px;border-radius:50%;background:#f8eee6; }
+  .arm { position:absolute; width:22px;height:3px;right:3px;top:7px;background:#d7c6b7;border-radius:4px;transform:rotate(25deg);transform-origin:right center; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .controls { display:flex; align-items:center; gap:10px; min-width:0; flex:1; }
+  button { width:36px;height:36px;flex:0 0 36px;border:0;border-radius:50%;background:var(--rose);color:white;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 6px rgba(130,80,85,.2); }
+  button:focus-visible { outline:2px solid var(--rose-dark);outline-offset:3px; }
+  button svg { width:15px;height:15px;fill:currentColor; }
+  .meta { min-width:0; }
+  .eyebrow { font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-dark);margin-bottom:3px; }
+  .title { font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .status { font:10px/1.3 Arial,sans-serif;color:#9b8985;margin-top:3px; }
+  @media (max-width:260px) { .player{gap:8px;padding:7px}.record-wrap{width:52px;height:52px;flex-basis:52px}.title{font-size:12px}.eyebrow{font-size:8px} }
+</style>
+</head>
+<body>
+<div class="player" role="group" aria-label="Music player">
+  <div class="record-wrap" aria-hidden="true">
+    <div class="record" id="record"><div class="arm"></div><div class="label"><div class="hole"></div></div></div>
+  </div>
+  <div class="controls">
+    <button id="toggle" type="button" aria-label="Play music" title="Play">
+      <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" hidden><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+    <div class="meta">
+      <div class="eyebrow">A little melody for you</div>
+      <div class="title" id="trackTitle">A Little Music Box</div>
+      <div class="status" id="status">Press play to listen</div>
+    </div>
+  </div>
+</div>
+<audio id="audio" preload="none"></audio>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const file = params.get('audio') || 'lullaby-music-box.mp3';
+  const title = params.get('title') || 'A Little Music Box';
+  const audio = document.getElementById('audio');
+  const record = document.getElementById('record');
+  const button = document.getElementById('toggle');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const status = document.getElementById('status');
+  document.getElementById('trackTitle').textContent = title;
+  audio.src = new URL(file, location.href).href;
+  function setPlaying(playing) {
+    record.classList.toggle('playing', playing);
+    playIcon.hidden = playing;
+    pauseIcon.hidden = !playing;
+    button.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+    button.title = playing ? 'Pause' : 'Play';
+    status.textContent = playing ? 'Now playing' : 'Press play to listen';
+  }
+  button.addEventListener('click', async () => {
+    if (audio.paused) {
+      try { await audio.play(); }
+      catch (e) { status.textContent = 'Tap play to try again'; }
+    } else { audio.pause(); }
+  });
+  audio.addEventListener('play', () => setPlaying(true));
+  audio.addEventListener('pause', () => setPlaying(false));
+  audio.addEventListener('ended', () => { audio.currentTime = 0; setPlaying(false); });
+  audio.addEventListener('error', () => { status.textContent = 'Music file not found'; setPlaying(false); });
+})();
+</script>
+</body>
+</html>
