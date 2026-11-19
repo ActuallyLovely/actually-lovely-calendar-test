@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actually Lovely Vinyl Player</title>
+<style>
+  :root { --rose:#b98286; --rose-dark:#96666b; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; width:100%; height:100%; background:transparent; overflow:hidden; }
+  body { display:grid; place-items:center; }
+  .player { width:92px; height:92px; position:relative; display:grid; place-items:center; }
+  .record-wrap { position:absolute; inset:5px; }
+  .record {
+    width:100%; height:100%; border-radius:50%; position:relative;
+    background:repeating-radial-gradient(circle at center,#242326 0 2px,#343236 2.5px 3.5px,#1e1d20 4px 5px);
+    box-shadow:0 2px 7px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.15);
+    animation:spin 4s linear infinite; animation-play-state:paused;
+  }
+  .record.playing { animation-play-state:running; }
+  .label { position:absolute; width:30px; height:30px; border-radius:50%; left:50%; top:50%; transform:translate(-50%,-50%); background:radial-gradient(circle at 35% 30%,#e6c4bd,var(--rose) 65%,#87585d); border:1px solid rgba(255,255,255,.5); display:grid; place-items:center; }
+  .hole { width:4px; height:4px; border-radius:50%; background:#f8eee6; }
+  .arm { position:absolute; width:21px; height:3px; right:4px; top:8px; background:#d7c6b7; border-radius:4px; transform:rotate(25deg); transform-origin:right center; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .toggle {
+    position:relative; z-index:2; width:34px; height:34px; border:1px solid rgba(255,255,255,.72);
+    border-radius:50%; padding:0; display:grid; place-items:center; cursor:pointer;
+    color:#fff; background:rgba(185,130,134,.96); box-shadow:0 2px 7px rgba(0,0,0,.24);
+    -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+  }
+  .toggle:focus-visible { outline:2px solid var(--rose-dark); outline-offset:3px; }
+  .toggle svg { width:15px; height:15px; fill:currentColor; }
+  .toggle svg[hidden] { display:none; }
+</style>
+</head>
+<body>
+  <div class="player" role="group" aria-label="Music player">
+    <div class="record-wrap" aria-hidden="true">
+      <div class="record" id="record"><div class="arm"></div><div class="label"><div class="hole"></div></div></div>
+    </div>
+    <button class="toggle" id="toggle" type="button" aria-label="Play music" title="Play">
+      <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+  </div>
+  <audio id="audio" preload="none"></audio>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const file = params.get('audio') || 'lullaby-music-box.mp3';
+  const audio = document.getElementById('audio');
+  const record = document.getElementById('record');
+  const button = document.getElementById('toggle');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  audio.src = new URL(file, location.href).href;
+  function setPlaying(playing) {
+    record.classList.toggle('playing', playing);
+    playIcon.hidden = playing;
+    pauseIcon.hidden = !playing;
+    button.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+    button.title = playing ? 'Pause' : 'Play';
+  }
+  button.addEventListener('click', async () => {
+    if (audio.paused) {
+      try { await audio.play(); }
+      catch (e) { setPlaying(false); }
+    } else { audio.pause(); }
+  });
+  audio.addEventListener('play', () => setPlaying(true));
+  audio.addEventListener('pause', () => setPlaying(false));
+  audio.addEventListener('ended', () => { audio.currentTime = 0; setPlaying(false); });
+  audio.addEventListener('error', () => setPlaying(false));
+})();
+</script>
+</body>
+</html>
